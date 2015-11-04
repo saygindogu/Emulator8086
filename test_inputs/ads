@@ -1,0 +1,2 @@
+MOV [ES:DX], 5
+MOV AX, [ES:DX]
