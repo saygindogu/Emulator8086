@@ -74,7 +74,7 @@ public class Emulator {
 		SwingUtilities.invokeLater(() -> {
 			try {
 				var emu = new Emulator();
-				var file = new File("test.asm");
+				var file = new File("test_inputs/comprehensive_demo.asm");
 				if (!file.canRead()) {
 					file.createNewFile();
 				}
