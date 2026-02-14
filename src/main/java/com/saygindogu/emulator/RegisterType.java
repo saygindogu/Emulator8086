@@ -1,111 +1,59 @@
 package com.saygindogu.emulator;
 
-//Register'lar tanmlamak iin yazlm tanmlayc data snf.
+import com.saygindogu.emulator.RegisterConstants.RegisterClass;
+import com.saygindogu.emulator.RegisterConstants.Width;
+
+import java.util.Map;
+
+import static com.saygindogu.emulator.RegisterConstants.*;
+import static com.saygindogu.emulator.RegisterConstants.RegisterClass.*;
+
 public class RegisterType {
-	private int registerClass;
-	private int registerIndex;
-	
-	public RegisterType( int cls, int index){
+	private static final Map<String, RegisterType> REGISTER_MAP = Map.ofEntries(
+		Map.entry("AX", new RegisterType(GENERAL_TYPE, AX)),
+		Map.entry("AH", new RegisterType(GENERAL_TYPE_8, AH)),
+		Map.entry("AL", new RegisterType(GENERAL_TYPE_8, AL)),
+		Map.entry("BX", new RegisterType(GENERAL_TYPE, BX)),
+		Map.entry("BH", new RegisterType(GENERAL_TYPE_8, BH)),
+		Map.entry("BL", new RegisterType(GENERAL_TYPE_8, BL)),
+		Map.entry("CX", new RegisterType(GENERAL_TYPE, CX)),
+		Map.entry("CH", new RegisterType(GENERAL_TYPE_8, CH)),
+		Map.entry("CL", new RegisterType(GENERAL_TYPE_8, CL)),
+		Map.entry("DX", new RegisterType(GENERAL_TYPE, DX)),
+		Map.entry("DH", new RegisterType(GENERAL_TYPE_8, DH)),
+		Map.entry("DL", new RegisterType(GENERAL_TYPE_8, DL)),
+		Map.entry("CS", new RegisterType(SEGMENT_TYPE, CS)),
+		Map.entry("DS", new RegisterType(SEGMENT_TYPE, DS)),
+		Map.entry("SS", new RegisterType(SEGMENT_TYPE, SS)),
+		Map.entry("ES", new RegisterType(SEGMENT_TYPE, ES)),
+		Map.entry("SP", new RegisterType(PTR_INDEX_TYPE, SP)),
+		Map.entry("BP", new RegisterType(PTR_INDEX_TYPE, BP)),
+		Map.entry("SI", new RegisterType(PTR_INDEX_TYPE, SI)),
+		Map.entry("DI", new RegisterType(PTR_INDEX_TYPE, DI)),
+		Map.entry("IP", new RegisterType(PROGRAM_STATUS_TYPE, IP)),
+		Map.entry("FLAG", new RegisterType(PTR_INDEX_TYPE, FLAG))
+	);
+
+	private final RegisterClass registerClass;
+	private final int registerIndex;
+
+	public RegisterType(RegisterClass cls, int index) {
 		registerClass = cls;
 		registerIndex = index;
 	}
 
-	public RegisterType(String string) {
-		if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_AX]) ){
-			registerClass = RegisterConstants.GENERAL_TYPE;
-			registerIndex = RegisterConstants.AX;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_AH])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.AH;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_AL])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.AL;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_BX]) ){
-			registerClass = RegisterConstants.GENERAL_TYPE;
-			registerIndex = RegisterConstants.BX;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_BH])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.BH;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_BL])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.BL;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_CX]) ){
-			registerClass = RegisterConstants.GENERAL_TYPE;
-			registerIndex = RegisterConstants.CX;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_CH])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.CH;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_CL])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.CL;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_DX]) ){
-			registerClass = RegisterConstants.GENERAL_TYPE;
-			registerIndex = RegisterConstants.DX;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_DH])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.DH;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_DL])){
-			registerClass = RegisterConstants.GENERAL_TYPE_8;
-			registerIndex = RegisterConstants.DL;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_CS])){
-			registerClass = RegisterConstants.SEGMENT_TYPE;
-			registerIndex = RegisterConstants.CS;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_DS])){
-			registerClass = RegisterConstants.SEGMENT_TYPE;
-			registerIndex = RegisterConstants.DS;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_ES])){
-			registerClass = RegisterConstants.SEGMENT_TYPE;
-			registerIndex = RegisterConstants.ES;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_SS])){
-			registerClass = RegisterConstants.SEGMENT_TYPE;
-			registerIndex = RegisterConstants.SS;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_SP])){
-			registerClass = RegisterConstants.PTR_INDEX_TYPE;
-			registerIndex = RegisterConstants.SP;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_BP])){
-			registerClass = RegisterConstants.PTR_INDEX_TYPE;
-			registerIndex = RegisterConstants.BP;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_SI])){
-			registerClass = RegisterConstants.PTR_INDEX_TYPE;
-			registerIndex = RegisterConstants.SI;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_DI])){
-			registerClass = RegisterConstants.PTR_INDEX_TYPE;
-			registerIndex = RegisterConstants.DI;
-		}
-		else if( string.equalsIgnoreCase( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_IP])){
-			registerClass = RegisterConstants.PROGRAM_STATUS_TYPE;
-			registerIndex = RegisterConstants.IP;
-		}
-		else if( string.equalsIgnoreCase( "FLAG" )){ // doru mu bu?
-			registerClass = RegisterConstants.PTR_INDEX_TYPE;
-			registerIndex = RegisterConstants.FLAG;
-		}
-		else{
-			registerClass = RegisterConstants.NONE;
-			registerIndex = RegisterConstants.NONE;
+	public RegisterType(String name) {
+		var found = REGISTER_MAP.get(name.toUpperCase());
+		if (found != null) {
+			registerClass = found.registerClass;
+			registerIndex = found.registerIndex;
+		} else {
+			registerClass = null;
+			registerIndex = NONE;
 		}
 	}
 
-	public int getRegisterClass() {
+	public RegisterClass getRegisterClass() {
 		return registerClass;
 	}
 
@@ -114,24 +62,25 @@ public class RegisterType {
 	}
 
 	public boolean isIP() {
-		return registerClass == RegisterConstants.PROGRAM_STATUS_TYPE && 
-				registerIndex == RegisterConstants.IP;
+		return registerClass == PROGRAM_STATUS_TYPE && registerIndex == IP;
 	}
-	
-	public boolean isCS(){
-		return registerClass == RegisterConstants.SEGMENT_TYPE && 
-				registerIndex == RegisterConstants.CS;
+
+	public boolean isCS() {
+		return registerClass == SEGMENT_TYPE && registerIndex == CS;
 	}
-	
-	public boolean isSegmentRegister(){
-		return registerClass == RegisterConstants.SEGMENT_TYPE;
+
+	public boolean isSegmentRegister() {
+		return registerClass == SEGMENT_TYPE;
 	}
 
 	public OperationWidth getWidth() {
-		if( registerClass == RegisterConstants.GENERAL_TYPE_8 ){
-			return new OperationWidth( RegisterConstants.EIGHT_BIT);
+		if (registerClass == GENERAL_TYPE_8) {
+			return new OperationWidth(Width.EIGHT_BIT);
 		}
-		else
-			return new OperationWidth( RegisterConstants.SIXTEEN_BIT);
+		return new OperationWidth(Width.SIXTEEN_BIT);
+	}
+
+	public static RegisterType fromName(String name) {
+		return REGISTER_MAP.get(name.toUpperCase());
 	}
 }

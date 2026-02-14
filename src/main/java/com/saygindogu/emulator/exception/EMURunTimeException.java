@@ -1,25 +1,20 @@
 package com.saygindogu.emulator.exception;
 
-//Runtime srasnda oluabilecek hatalarda bu exception gnderilir.
 public class EMURunTimeException extends Exception {
 
-	private int instructionIndex;
-	private String additionalMessage;
-	
+	private final int instructionIndex;
+
 	public EMURunTimeException(int instructionIndex) {
-		super();
+		super("Run Time Exception in line " + instructionIndex);
 		this.instructionIndex = instructionIndex;
-		additionalMessage = "";
-	}
-	
-	public EMURunTimeException(String string, int instructionIndex) {
-		 this.instructionIndex = instructionIndex;
-		 additionalMessage = string;
 	}
 
-	@Override
-	public String getMessage() {
-		return "Run Time Exception:" + additionalMessage + "\n in line" + instructionIndex + "\n==\n" + super.getMessage();
+	public EMURunTimeException(String message, int instructionIndex) {
+		super("Run Time Exception: " + message + " in line " + instructionIndex);
+		this.instructionIndex = instructionIndex;
 	}
 
+	public int getInstructionIndex() {
+		return instructionIndex;
+	}
 }

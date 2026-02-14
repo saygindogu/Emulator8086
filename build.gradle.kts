@@ -1,28 +1,15 @@
 plugins {
     java
     application
-    id("org.openjfx.javafxplugin") version "0.0.12"
 }
 
-buildscript {
-    repositories {
-        maven {
-            setUrl("https://plugins.gradle.org/m2/")
-        }
-    }
-    dependencies {
-        classpath("org.openjfx:javafx-plugin:0.0.12")
-    }
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
-apply(plugin = "org.openjfx.javafxplugin")
-apply(plugin = "java")
 
 application {
-    mainClassName = "com.saygindogu.emulator.Emulator"
-}
-
-javafx {
-    modules("javafx.controls", "javafx.fxml")
+    mainClass = "com.saygindogu.emulator.Emulator"
 }
 
 group = "org.example"
@@ -33,8 +20,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
 }
 
 tasks.getByName<Test>("test") {

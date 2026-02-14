@@ -49,7 +49,7 @@ public class PtrIndexRegistersPanel extends JPanel {
 		SIValueLabel = new JLabel();
 		DIValueLabel = new JLabel();
 		
-		SPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_SP] );
+		SPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_SP] );
 		BPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_BP] );
 		SINameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_SI] );
 		DINameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_DI] );

@@ -1,29 +1,23 @@
 package com.saygindogu.emulator;
 
-//
+import com.saygindogu.emulator.RegisterConstants.Width;
+
 public class OperationWidth {
-	private int width;
-	
-	public OperationWidth(int eightOrSixteenBit) {
-		width = eightOrSixteenBit;
+	private final Width width;
+
+	public OperationWidth(Width width) {
+		this.width = width;
 	}
 
-	public boolean isEightBit(){
-		return width == RegisterConstants.EIGHT_BIT;
+	public boolean isEightBit() {
+		return width == Width.EIGHT_BIT;
 	}
-	public boolean isThirtyTwoBit(){
-		return width == RegisterConstants.THIRTY_TWO_BITS;
+
+	public boolean isThirtyTwoBit() {
+		return width == Width.THIRTY_TWO_BITS;
 	}
 
 	public int getIntWidth() {
-		switch( width){
-		case RegisterConstants.EIGHT_BIT:
-			return 8;
-		case RegisterConstants.THIRTY_TWO_BITS:
-			return 32;
-		default:
-			return 16;
-		}
+		return width.getBits();
 	}
-	
 }
