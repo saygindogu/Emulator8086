@@ -4,25 +4,31 @@ import com.saygindogu.emulator.Emulator;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 
 public class EmulatorView extends JFrame {
 	
 	private MainPanel mainPanel;
 	private Emulator emulator;
-	private double width;
-	private double height;
-	
+
 	public EmulatorView( Emulator emulator){
 		this.emulator = emulator;
-		Toolkit tk = Toolkit.getDefaultToolkit();  
-		width  = tk.getScreenSize().getWidth() * 0.5;  
-		height = tk.getScreenSize().getHeight() * 0.5 ;
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		var width  = tk.getScreenSize().getWidth() * 0.5;
+		var height = tk.getScreenSize().getHeight() * 0.5 ;
 		
 		mainPanel = new MainPanel( emulator, width, height);
 		add(mainPanel);
 		pack();
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		});
 		setVisible(true);
 	}
 

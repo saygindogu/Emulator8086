@@ -1,36 +1,110 @@
 # Emulator8086
-An Emulator for 8086 architecture.
-[Geeks For Geeks Explanation](https://www.geeksforgeeks.org/architecture-of-8086/) of this architecture is a suggested read.
 
-# How to run the project
-It's a gradle project. Please follow the instructions on google on `how to run gradle projects`. 
+An emulator for the Intel 8086 microprocessor architecture, featuring a Swing-based GUI for writing, loading, and executing 8086 assembly programs.
 
-# History
-This was a project for fun that I implemented I don't know how many years ago.
+For background on the 8086 architecture, see the [GeeksforGeeks explanation](https://www.geeksforgeeks.org/architecture-of-8086/).
 
-It was put to github by me in Nov 2015 and then there is one more commit which was in April 2016.
+## Prerequisites
 
-In April 2022, I decided to have fun with this one more time. Document this properly and maybe make it somehow useful?
+- **Java 25** or later
+- **Gradle** (wrapper included — no separate installation required)
 
-# Exploration in 2022
+## Getting Started
 
-- When I pulled the repository I looked at the files such as `ali`, `asd.asm` etc. I have no idea what they are doing now but they are source code for the program.
-- I saw some IDE related files. I decided to remove them from the repo once and for all.
-- I saw no `.gitignore` file, hence I will add it shortly. I saw a `bin` folder which was committed.
-- This repo will surely endure a rebase and history re-write.
-- I have seen some lecture notes in the `emulatorDosyalari` directory.
-- It was now time to make the project compile.
-- It did not compile for some reason :)
-- I made this a gradle project and added the main class and all sorts of things as usual.
-- The files were not UTF-8 encoded for some reason and there were funny characters. A quick find and replace fixed the issue.
-- I needed to remove some unused imports and voila, the application was running.
-- The UI seems a bit oldie, but it is really nice actually. There is a app bar and you can do some stuff.
-- You can open a file, and run it. 
-- Though there's no button for stopping so if the assembly code results in infinite running, it'll run forever.
-- There's even Options button where we can change the representation of the memory and addresses to binary hex and decimal options. Neat!!
-- There's also **help!** section in the options list. It gives a website that doesn't work. I replaced it with something that works.
-- Seems pretty decent to me. I'm proud of myself actually.
-- I tidied up the place and will commit soon. And probably rebase and erase all history haha.
+### Run the application
 
-# Code Rewiew
-- Coming soon.
+```bash
+./gradlew run
+```
+
+On Windows, use `gradlew.bat run` instead.
+
+### Run tests
+
+```bash
+./gradlew test
+```
+
+### Build a distributable
+
+```bash
+./gradlew build
+```
+
+The build output will be placed in `build/`.
+
+## Using the Emulator
+
+Once launched, the GUI provides the following menus:
+
+| Menu      | Actions                                                      |
+|-----------|--------------------------------------------------------------|
+| **File**  | New, Open, Save, Save As, Exit                               |
+| **Run**   | Run All (execute the full program), Next (step one instruction), Reset |
+| **Options** | Change representation mode (hex / binary / decimal for both values and addresses), Help |
+
+### Writing Assembly
+
+You can write assembly directly in the editor or load a `.asm` file via **File > Open**. Sample programs are included in the `test_inputs/` directory.
+
+#### Syntax overview
+
+```asm
+; Comments start with a semicolon
+variable db 5              ; Define a byte variable with initial value 5
+
+begin: mov AX, variable    ; Labels end with a colon
+add AX, 12h               ; Hexadecimal literals use the 'h' suffix
+add BX, [11h]             ; Square brackets denote memory addressing
+mov CX, 10
+loop begin                 ; LOOP decrements CX and jumps if CX != 0
+```
+
+#### Variable declarations
+
+| Directive | Width       | Example                    |
+|-----------|-------------|----------------------------|
+| `db`      | Byte (8-bit)  | `myVar db 5`             |
+| `dw`      | Word (16-bit) | `myWord dw 1234h`        |
+| `dd`      | Double word (32-bit) | `myDWord dd 0`     |
+
+Variables support `?` for uninitialized values and `dup()` for repeated allocation.
+
+#### Supported instructions
+
+**Data movement:** `MOV`, `LEA`
+
+**Arithmetic:** `ADD`, `ADC`, `SUB`, `SBB`, `MUL`, `IMUL`, `DIV`, `IDIV`, `INC`, `DEC`, `NEG`, `CMP`
+
+**Logic:** `AND`, `OR`, `XOR`, `NOT`
+
+**Shift and rotate:** `SHL`, `SHR`, `ROL`, `ROR`
+
+**Control flow:** `JMP`, `JA`, `JAE`, `JB`, `JBE`, `JC`, `JG`, `JGE`, `JL`, `JLE`, `JNE`, `JNP`, `JP`, `JPO`, `LOOP`
+
+**Flags:** `CLC`, `CLD`, `STC`, `STD`
+
+**Other:** `NOP`, `HLT`
+
+### Representation Modes
+
+Use **Options > Representation Mode** to switch between hexadecimal, binary, and decimal display for both memory values and addresses. This applies to the register and memory panels in real time.
+
+## Project Structure
+
+```
+src/main/java/com/saygindogu/emulator/
+├── Assembler.java          # Parses and assembles .asm source files
+├── Emulator.java           # Application entry point
+├── Processor.java          # 8086 CPU emulation (instruction execution)
+├── RegisterConstants.java  # Register index constants
+├── RegisterType.java       # Register type definitions
+└── gui/                    # Swing-based user interface panels
+
+test_inputs/                # Sample assembly programs
+```
+
+## Documentation
+
+- [How It Works](docs/how-it-works.md) — internal architecture, assembler pipeline, processor model, GUI layout, and [test program descriptions](docs/test-programs.md#test-programs).
+- [HISTORY.md](HISTORY.md) — full project history.

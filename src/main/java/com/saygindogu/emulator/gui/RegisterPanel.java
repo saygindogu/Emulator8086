@@ -7,34 +7,26 @@ import java.awt.*;
 
 public class RegisterPanel extends JPanel {
 	
-	private Emulator emulator;
 	private GeneralPurposeRegistersPanel general;
 	private SegmentRegisterPanel segment;
 	private PtrIndexRegistersPanel ptrIndexregisterPanel;
-	private JPanel leftPanel;
-	private JPanel rightPanel;
-	private double width;
-	private double height;
 
 	public RegisterPanel(Emulator emulator, double w, double h){
-		width = w;
-		height = h;
-		this.emulator = emulator;
 		general = new GeneralPurposeRegistersPanel(emulator, w, h );
 		segment = new SegmentRegisterPanel(emulator, w, h);
-		
-		leftPanel = new JPanel();
-		rightPanel = new JPanel();
-		
+
+		var leftPanel = new JPanel();
+		var rightPanel = new JPanel();
+
 		ptrIndexregisterPanel = new PtrIndexRegistersPanel( emulator, w, h);
-		
+
 		leftPanel.setLayout( new GridLayout( 1, 2));
 		leftPanel.add( general);
 		leftPanel.add( segment);
-		
-		rightPanel.setLayout( new BorderLayout());;
+
+		rightPanel.setLayout( new BorderLayout());
 		rightPanel.add( ptrIndexregisterPanel);
-		
+
 		setBackground( Color.red);
 		setLayout( new GridLayout(1,2) );
 		add( leftPanel);
@@ -43,7 +35,6 @@ public class RegisterPanel extends JPanel {
 	}
 
 	public void setEmulator(Emulator emulator) {
-		this.emulator = emulator;
 	}
 
 	public void updateView() {

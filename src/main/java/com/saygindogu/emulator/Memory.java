@@ -1,8 +1,7 @@
 package com.saygindogu.emulator;
 
 /**
- * 
- * RAM'i simule eden temsili memory objesi
+ * Simulated RAM memory object.
  */
 public class Memory {
 	
@@ -26,16 +25,15 @@ public class Memory {
 	}
 
 	/**
-	 * TODO 32 bit-write desteklenmeli
-	 * 
-	 * Gelen deeri memory'e uygun ekilde ( little-endian) yazar.
-	 * 
+	 * Writes the given value to memory in little-endian byte order.
+	 * TODO add 32-bit write support
+	 *
 	 * @param memAddress
 	 * @param value
 	 * @param width
 	 */
 	public void write(int memAddress, int value, OperationWidth width) {
-		//TODO 32 bit mode ekle
+		//TODO add 32-bit mode
 		if( width.isEightBit() ){
 			bytes[memAddress] = (byte) (value & 0xFF);
 		}
@@ -47,9 +45,9 @@ public class Memory {
 	}
 
 	/**
-	 * TODO 32 bit-read desteklenmeli mi?
-	 * istenilen adresteki deeri memory'den uygun bir ekilde alr. ( little-endian)
-	 * 
+	 * Reads the value at the given address from memory in little-endian byte order.
+	 * TODO add 32-bit read support
+	 *
 	 * @param memAddress
 	 * @param width
 	 * @return

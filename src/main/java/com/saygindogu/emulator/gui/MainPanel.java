@@ -6,38 +6,24 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainPanel extends JPanel {
-	JPanel bottomPanel;
-	JSplitPane text_memory_splitter;
-	JSplitPane middle_Bottom_splitter;
-	MenuPanel menupanel;
-	JPanel mergedPanel;
-	JPanel middlePanel;
 	TextPanel textPanel;
 	MemoryPanel memoryPanel;
 	RegisterPanel registerPanel;
-	private double width;
-	private double height;
 	private Emulator emulator;
-	
+
 	public MainPanel(Emulator emulator, double w, double h){
-		width = w;
-		height = h;
 		this.emulator = emulator;
-		mergedPanel = new JPanel();
-		bottomPanel = new JPanel();
-		menupanel= new MenuPanel( emulator, width, height);
-		middlePanel = new JPanel();
-		textPanel = new TextPanel( emulator, width, height);
-		memoryPanel = new MemoryPanel( emulator, width, height);
-		registerPanel = new RegisterPanel(emulator, width, height);
-		
-		text_memory_splitter = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, textPanel, memoryPanel);
-		
-		middle_Bottom_splitter = new JSplitPane( JSplitPane.VERTICAL_SPLIT, text_memory_splitter, registerPanel);
-		
+		var menupanel = new MenuPanel( emulator, w, h);
+		textPanel = new TextPanel( emulator, w, h);
+		memoryPanel = new MemoryPanel( emulator, w, h);
+		registerPanel = new RegisterPanel(emulator, w, h);
+
+		var textMemorySplitter = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, textPanel, memoryPanel);
+		var middleBottomSplitter = new JSplitPane( JSplitPane.VERTICAL_SPLIT, textMemorySplitter, registerPanel);
+
 		setLayout( new BorderLayout());
 		add( menupanel, BorderLayout.NORTH);
-		add(middle_Bottom_splitter);
+		add(middleBottomSplitter);
 	}
 
 	public void setEmulator(Emulator emulator) {

@@ -13,32 +13,20 @@ public class ProgramStatusResigersPanel extends JPanel {
 	private JPanel leftPanel;
 	private JPanel rightPanel;
 	private JPanel flagPanel;
-	private double width;
-	private double height;
-	
-	private JLabel OFNameLabel;
-	private JLabel DFNameLabel;
-	private JLabel SFNameLabel;
-	private JLabel ZFNameLabel;
-	private JLabel PFNameLabel;
-	private JLabel CFNameLabel;
 
-	private Component rigidArea;
-	
 	JLabel IPValueLabel;
 	JLabel IPNameLabel;
-	
-	private EmuWord IP;
+
 	private int[] flagValues;
 	private JLabel[] flagLabels;
 	private JPanel flagNamePanel;
 	private int representationMode;
+	private int prevIP;
+	private int[] prevFlagValues;
 	
 	public ProgramStatusResigersPanel(Emulator emulator, double w, double h) {
 		this.emulator = emulator;
 		representationMode = GUIConstants.HEX_MODE;
-		width = w;
-		height = h;
 		
 		leftPanel = new JPanel();
 		rightPanel = new JPanel();
@@ -49,21 +37,23 @@ public class ProgramStatusResigersPanel extends JPanel {
 		
 		flagPanel.setLayout( new GridLayout( 2, 16, 3, 3));
 		
-		OFNameLabel = new JLabel( "OF");
-		DFNameLabel = new JLabel( "DF");
-		SFNameLabel = new JLabel( "SF");
-		ZFNameLabel = new JLabel( "ZF");
-		PFNameLabel = new JLabel( "PF");
-		CFNameLabel = new JLabel( "CF");
+		var OFNameLabel = new JLabel( "OF");
+		var DFNameLabel = new JLabel( "DF");
+		var SFNameLabel = new JLabel( "SF");
+		var ZFNameLabel = new JLabel( "ZF");
+		var PFNameLabel = new JLabel( "PF");
+		var CFNameLabel = new JLabel( "CF");
 		IPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[ RegisterConstants.NAME_INDEX_IP]);
 		
 		IPValueLabel = new JLabel();
 		
 		flagValues = new int[16];
+		prevFlagValues = new int[16];
 		flagLabels = new JLabel[16];
 		for( int i = 0; i < flagLabels.length; i++){
 			flagLabels[i] = new JLabel();
 			flagValues[i] = 0;
+			prevFlagValues[i] = 0;
 		}
 		
 		for( int i = 0; i < 16; i++){
@@ -130,15 +120,23 @@ public class ProgramStatusResigersPanel extends JPanel {
 
 	public void updateView() {
 		fillFlagValues();
-		
+
 		for( int i = 0; i < flagLabels.length; i++){
 			flagLabels[i].setText( "" + flagValues[i] );
+			flagLabels[i].setOpaque( true );
+			flagLabels[i].setBackground( flagValues[i] != prevFlagValues[i] ? GUIConstants.CHANGED_VALUE_COLOR : GUIConstants.MEMORY_BACKGROUND );
 		}
-		
-		IP = new EmuWord( (short) emulator.getProcessor().getRegisterValue( new RegisterType("IP")));
-		IP.setRepresentationMode(representationMode);
-		IPValueLabel.setText( IP.toString() );
-		
+
+		int curIP = emulator.getProcessor().getRegisterValue( new RegisterType("IP"));
+		var ip = new EmuWord( (short) curIP);
+		ip.setRepresentationMode(representationMode);
+		IPValueLabel.setText( ip.toString() );
+		IPValueLabel.setOpaque( true );
+		IPValueLabel.setBackground( curIP != prevIP ? GUIConstants.CHANGED_VALUE_COLOR : GUIConstants.MEMORY_BACKGROUND );
+
+		prevIP = curIP;
+		System.arraycopy(flagValues, 0, prevFlagValues, 0, flagValues.length);
+
 	}
 
 	private void fillFlagValues() {
