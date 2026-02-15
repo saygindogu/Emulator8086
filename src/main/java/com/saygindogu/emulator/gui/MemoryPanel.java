@@ -19,16 +19,12 @@ public class MemoryPanel extends JPanel {
 	private JLabel addressLabel;
 	private JPanel topPanel;
 	private JPanel bottomPanel;
-	private double width;
-	private double height;
 	private int addressRepMode;
 	private int valueRepMode;
 
 	public MemoryPanel(Emulator emulator, double w, double h){
 		addressRepMode = GUIConstants.HEX_MODE;
 		valueRepMode = GUIConstants.HEX_MODE;
-		width = w;
-		height = h;
 		backColor = GUIConstants.MEMORY_BACKGROUND;
 		this.emulator = emulator;
 

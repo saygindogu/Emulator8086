@@ -106,5 +106,5 @@ test_inputs/                # Sample assembly programs
 
 ## Documentation
 
-- [How It Works](docs/how-it-works.md) — internal architecture, assembler pipeline, processor model, and GUI layout.
+- [How It Works](docs/how-it-works.md) — internal architecture, assembler pipeline, processor model, GUI layout, and [test program descriptions](docs/test-programs.md#test-programs).
 - [HISTORY.md](HISTORY.md) — full project history.

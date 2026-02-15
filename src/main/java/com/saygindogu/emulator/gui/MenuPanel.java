@@ -11,9 +11,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 
 public class MenuPanel extends JPanel {
+
+	private static final Logger LOGGER = Logger.getLogger(MenuPanel.class.getName());
 
 	Emulator emulator;
 	JMenu file;
@@ -40,9 +43,6 @@ public class MenuPanel extends JPanel {
 	ActionListener actionListener;
 	JLabel addressLabel, valuesLabel, titleLabel;
 	JPanel repModBotPanel;
-
-	private double width;
-	private double height;
 
 	private void createRepModPanel() {
 		representationTypePanel = new JPanel();
@@ -129,14 +129,18 @@ public class MenuPanel extends JPanel {
 
 	public MenuPanel( Emulator emu, double w, double h){
 		createRepModPanel();
-		width = w;
-		height = h;
 		emulator = emu;
 
 		button = new JButton( "Next Step");
 		button.addActionListener( e -> {
-			emulator.oneStep();
+			LOGGER.info("Next Step button pressed");
+			if (emulator.getProcessor().isFinished()) return;
 			emulator.getProcessor().setWaiting( false);
+			try {
+				emulator.oneStep();
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, "Exception:\n" + ex.getMessage());
+			}
 		});
 
 		bar = new JMenuBar();
@@ -157,6 +161,7 @@ public class MenuPanel extends JPanel {
 		newFile = new JMenuItem( "New File");
 		file.add(newFile);
 		newFile.addActionListener( e -> {
+			LOGGER.info("New File button pressed");
 			var fileChooser = new JFileChooser();
 			fileChooser.setCurrentDirectory( new File( ".") );
 			var filter = new FileNameExtensionFilter("ASSEMBLY FILES", "asm", "assembly");
@@ -179,6 +184,7 @@ public class MenuPanel extends JPanel {
 		open = new JMenuItem( "Open File");
 		file.add(open);
 		open.addActionListener( e -> {
+			LOGGER.info("Open File button pressed");
 			var chooser = new JFileChooser();
 			chooser.setCurrentDirectory( new File( ".") );
 			var filter = new FileNameExtensionFilter("ASSEMBLY FILES", "asm", "assembly");
@@ -195,6 +201,7 @@ public class MenuPanel extends JPanel {
 		save = new JMenuItem("Save");
 		file.add(save);
 		save.addActionListener( e -> {
+			LOGGER.info("Save button pressed");
 			var assemblyCode = emulator.getView().getTextArea().getText();
 			var savedFile = emulator.getAssemblyFile();
 			try {
@@ -213,6 +220,7 @@ public class MenuPanel extends JPanel {
 		saveas = new JMenuItem("Save as");
 		file.add(saveas);
 		saveas.addActionListener( e -> {
+			LOGGER.info("Save As button pressed");
 			var assemblyCode = emulator.getView().getTextArea().getText();
 			var fileChooser = new JFileChooser();
 			var filter = new FileNameExtensionFilter("ASSEMBLY FILES", "asm", "assembly");
@@ -240,33 +248,42 @@ public class MenuPanel extends JPanel {
 
 		exit = new JMenuItem("Exit");
 		file.add(exit);
-		exit.addActionListener( e -> System.exit(0));
+		exit.addActionListener( e -> {
+			LOGGER.info("Exit button pressed");
+			System.exit(0);
+		});
 
 		nextItem = new JMenuItem("NextStep");
 		run.add(nextItem);
 		nextItem.addActionListener( e -> {
-			emulator.oneStep();
+			LOGGER.info("NextStep menu item pressed");
+			if (emulator.getProcessor().isFinished()) return;
 			emulator.getProcessor().setWaiting( false);
+			try {
+				emulator.oneStep();
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, "Exception:\n" + ex.getMessage());
+			}
 		});
 
 		runAll = new JMenuItem("Run");
 		run.add(runAll);
 		runAll.addActionListener( e -> {
-			try {
-				emulator.runAll();
-			} catch (InterruptedException ex) {
-				JOptionPane.showMessageDialog( null, "Interrupted exception");
-				ex.printStackTrace();
-			}
+			LOGGER.info("Run button pressed");
+			emulator.runAll();
 		});
 
 		reset = new JMenuItem( "Reset");
 		run.add( reset);
-		reset.addActionListener( e -> emulator.reset());
+		reset.addActionListener( e -> {
+			LOGGER.info("Reset button pressed");
+			emulator.reset();
+		});
 
 		representationMode = new JMenuItem( "Set representation mode");
 		options.add( representationMode);
 		representationMode.addActionListener( e -> {
+			LOGGER.info("Set representation mode button pressed");
 			JOptionPane.showMessageDialog( emulator.getView(), representationTypePanel);
 			emulator.getView().updateView(emulator);
 		});
@@ -274,6 +291,7 @@ public class MenuPanel extends JPanel {
 		help = new JMenuItem( "Help!");
 		options.add( help);
 		help.addActionListener( e -> {
+			LOGGER.info("Help button pressed");
 			var message = new StringBuilder("x86 Architecture help :\n"
 					+ "https://www.pcpolytechnic.com/it/ppt/8086_instruction_set.pdf"
 					+ "\n" + "Supported mnemonics:\n");

@@ -36,3 +36,7 @@ Key changes:
 - **Improved code structure**: Introduced enums, simplified control flow, and applied modern Java conventions throughout.
 - **Test suite**: Added unit tests for the `Assembler`, `Processor`, and memory subsystems, establishing a foundation for regression testing.
 - **GUI improvements**: Refactored menu and display panels for better readability and maintainability.
+- **Logging**: Replaced all `System.out.println` and `e.printStackTrace()` calls with `java.util.logging` (JUL). Created `LoggingConfig` utility that writes timestamped log files (e.g., `emulator_2026-02-15_14-30-45.log`). Added `LOGGER.info` calls on every GUI button press in `MenuPanel` for traceability.
+- **Bug fix — runAll loop**: Fixed a bug where exceptions during `runAll()` were swallowed, causing the execution loop to continue and repeatedly prompt error dialogs. Exceptions now break the loop. Also fixed the "Next Step" button unconditionally clearing the `waiting` flag after `HLT`, which caused stepping past the end of a program.
+- **Demo file fix**: Fixed a trailing comma in `comprehensive_demo.asm` that caused a token count mismatch, and added a `HLT` instruction for clean termination.
+- **Unused field cleanup**: Removed unused fields (`width`, `height`, dead GUI panels, write-only references, etc.) across 10 GUI classes and converted fields that were only used in a single method to local variables.

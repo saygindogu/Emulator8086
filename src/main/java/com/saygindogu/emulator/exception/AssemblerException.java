@@ -10,7 +10,7 @@ public class AssemblerException extends Exception {
 		super("Assembler exception");
 	}
 
-	public AssemblerException(String message) {
-		super("Assembler exception - " + message);
+	public AssemblerException(String message, int lineNumber) {
+		super("Assembler exception at line " + lineNumber + " - " + message);
 	}
 }

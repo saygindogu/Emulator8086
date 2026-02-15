@@ -8,8 +8,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Assembler {
+
+    private static final Logger LOGGER = Logger.getLogger(Assembler.class.getName());
 
     private List<Pair<Integer, Integer>> instructionToTextMapping;
     private List<Pair<String, Integer>> tagIndexTable;
@@ -173,6 +177,7 @@ public class Assembler {
     private void readFile() throws AssemblerException {
         final BufferedReader reader;
         try {
+            LOGGER.info("Reading file: " + assemblyFile.getName());
             reader = new BufferedReader(new FileReader(assemblyFile));
             instructionLines = new ArrayList<>();
             tagIndexTable = new ArrayList<>();
@@ -187,18 +192,18 @@ public class Assembler {
                 while (line != null) {
                     line = line.split(";")[0];
 
-                    if (!manageVariables(line)) {
+                    if (!manageVariables(line, textPosition + 1)) {
                         if (line.contains(":")) {
                             var potentialTag = line.substring(0, line.indexOf(":"));
                             if (potentialTag.matches("[A-Za-z][A-Za-z1-9]*")) {
                                 line = line.substring(line.indexOf(":") + 1);
-                                System.out.println("Lines : " + instructionLines);
-                                System.out.println("Tag list: " + tagList);
+                                LOGGER.fine("Lines : " + instructionLines);
+                                LOGGER.fine("Tag list: " + tagList);
                                 if (!tagList.contains(potentialTag)) {
                                     tagIndexTable.add(new Pair<>(potentialTag, instructionLines.size()));
                                     tagList.add(potentialTag);
                                 } else {
-                                    throw new AssemblerException("Multiple tags");
+                                    throw new AssemblerException("Multiple tags", textPosition + 1);
                                 }
                             }
                         }
@@ -212,17 +217,17 @@ public class Assembler {
                     line = reader.readLine();
                     textPosition++;
                 }
-                System.out.println(instructionLines.toString());
+                LOGGER.fine(instructionLines.toString());
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "IO Exception: " + e.getMessage());
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "IO Exception while reading file", e);
             }
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(null, "File Not Found Exception:\n" + e.getMessage());
         }
     }
 
-    private boolean manageVariables(String line) throws AssemblerException {
+    private boolean manageVariables(String line, int lineNumber) throws AssemblerException {
         var tokensArray = line.split(" ");
         OperationWidth width;
         if (tokensArray.length >= 3) {
@@ -233,18 +238,18 @@ public class Assembler {
                         variableList.add(new AssemblyVariable(width, 1, 0, tokensArray[0]));
                     } else if (isNumber(tokensArray[2], true)) {
                         if (tokensArray.length > 3 && tokensArray[3].matches("dup(.*)")) {
-                            handleArrayDeclerations(tokensArray);
+                            handleArrayDeclerations(tokensArray, lineNumber);
                         } else {
                             variableList.add(new AssemblyVariable(width, 1, getImmediateValue(tokensArray[2]).getIntValue(), tokensArray[0]));
                         }
                     } else if (isChar(tokensArray[2])) {
                         if (tokensArray.length > 3 && tokensArray[3].matches("dup(.*)")) {
-                            handleArrayDeclerations(tokensArray);
+                            handleArrayDeclerations(tokensArray, lineNumber);
                         } else {
                             variableList.add(new AssemblyVariable(width, 1, getCharValue(tokensArray[2]).getIntValue(), tokensArray[0]));
                         }
-                    } else throw new AssemblerException("Syntax Error");
-                } else throw new AssemblerException("Variable name is not valid");
+                    } else throw new AssemblerException("Syntax Error", lineNumber);
+                } else throw new AssemblerException("Variable name is not valid", lineNumber);
                 return true;
             } else if (tokensArray[1].equals("dw")) {
                 width = new OperationWidth(Width.SIXTEEN_BIT);
@@ -253,12 +258,12 @@ public class Assembler {
                         variableList.add(new AssemblyVariable(width, 1, 0, tokensArray[0]));
                     } else if (isNumber(tokensArray[2], true)) {
                         if (tokensArray.length > 3 && tokensArray[3].matches("dup(.*)")) {
-                            handleArrayDeclerations(tokensArray);
+                            handleArrayDeclerations(tokensArray, lineNumber);
                         } else {
                             variableList.add(new AssemblyVariable(width, 1, getImmediateValue(tokensArray[2]).getIntValue(), tokensArray[0]));
                         }
-                    } else throw new AssemblerException("Syntax Error");
-                } else throw new AssemblerException("Variable name is not valid");
+                    } else throw new AssemblerException("Syntax Error", lineNumber);
+                } else throw new AssemblerException("Variable name is not valid", lineNumber);
                 return true;
             } else if (tokensArray[1].equals("dd")) {
                 width = new OperationWidth(Width.THIRTY_TWO_BITS);
@@ -267,12 +272,12 @@ public class Assembler {
                         variableList.add(new AssemblyVariable(width, 1, 0, tokensArray[0]));
                     } else if (isNumber(tokensArray[2], true)) {
                         if (tokensArray.length > 3 && tokensArray[3].matches("dup(.*)")) {
-                            handleArrayDeclerations(tokensArray);
+                            handleArrayDeclerations(tokensArray, lineNumber);
                         } else {
                             variableList.add(new AssemblyVariable(width, 1, getImmediateValue(tokensArray[2], true).getIntValue(), tokensArray[0]));
                         }
-                    } else throw new AssemblerException("Syntax Error");
-                } else throw new AssemblerException("Variable name is not valid");
+                    } else throw new AssemblerException("Syntax Error", lineNumber);
+                } else throw new AssemblerException("Variable name is not valid", lineNumber);
                 return true;
             } else return false;
         } else return false;
@@ -339,12 +344,12 @@ public class Assembler {
         return string.matches("'.'");
     }
 
-    private void handleArrayDeclerations(String[] tokensArray) throws AssemblerException {
+    private void handleArrayDeclerations(String[] tokensArray, int lineNumber) throws AssemblerException {
         var repetitionNo = tokensArray[3].substring(
                 tokensArray[3].indexOf("(") + 1,
                 tokensArray[3].indexOf(")"));
         if (!isNumber(repetitionNo, true)) {
-            throw new AssemblerException("Syntax Error");
+            throw new AssemblerException("Syntax Error", lineNumber);
         }
     }
 

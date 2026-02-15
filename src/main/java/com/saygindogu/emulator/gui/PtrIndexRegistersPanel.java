@@ -1,7 +1,6 @@
 package com.saygindogu.emulator.gui;
 
 import com.saygindogu.emulator.Emulator;
-import com.saygindogu.emulator.Processor;
 import com.saygindogu.emulator.RegisterConstants;
 import com.saygindogu.emulator.RegisterType;
 
@@ -10,50 +9,37 @@ import java.awt.*;
 
 public class PtrIndexRegistersPanel extends JPanel {
 
-	private JPanel topPanel;
 	private ProgramStatusResigersPanel bottomPanel;
-	private JPanel nameLabelPanel;
-	
-	private JLabel nameLabel;
-	
-	private JLabel SPNameLabel;
-	private JLabel BPNameLabel;
-	private JLabel SINameLabel;
-	private JLabel DINameLabel;
-	
+
 	private JLabel SPValueLabel;
 	private JLabel BPValueLabel;
 	private JLabel SIValueLabel;
 	private JLabel DIValueLabel;
-	
-	private EmuWord SP;
-	private EmuWord BP;
-	private EmuWord DI;
-	private EmuWord SI;
-	
+
 	Emulator emulator;
 	private int valueRepresentationMode;
+	private int[] prevValues = new int[4];
 	
 	public PtrIndexRegistersPanel(Emulator emulator, double w, double h){
 		valueRepresentationMode = GUIConstants.HEX_MODE;
 		setBackground( Color.red);
 		this.emulator = emulator;
-		
-		topPanel = new JPanel();
+
+		var topPanel = new JPanel();
 		bottomPanel = new ProgramStatusResigersPanel( emulator, w, h);
-		nameLabel = new JLabel( GUIConstants.PTR_INDEX_REG_STRING );
-		nameLabelPanel = new JPanel();
+		var nameLabel = new JLabel( GUIConstants.PTR_INDEX_REG_STRING );
+		var nameLabelPanel = new JPanel();
 		
 		SPValueLabel = new JLabel();
 		BPValueLabel = new JLabel();
 		SIValueLabel = new JLabel();
 		DIValueLabel = new JLabel();
 		
-		SPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_SP] );
-		BPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_BP] );
-		SINameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_SI] );
-		DINameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_DI] );
-		
+		var SPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_SP] );
+		var BPNameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_BP] );
+		var SINameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_SI] );
+		var DINameLabel = new JLabel( RegisterConstants.REGISTER_NAMES[RegisterConstants.NAME_INDEX_DI] );
+
 		SPNameLabel.setHorizontalAlignment( JLabel.RIGHT);
 		BPNameLabel.setHorizontalAlignment( JLabel.RIGHT);
 		SINameLabel.setHorizontalAlignment( JLabel.RIGHT);
@@ -78,44 +64,51 @@ public class PtrIndexRegistersPanel extends JPanel {
 		add( nameLabelPanel);
 		add(topPanel);
 		add(bottomPanel);
-		
-		handleBackGroundColors();
-	}
 
-	private void handleBackGroundColors() {
 		setBackground( GUIConstants.MEMORY_BACKGROUND);
-		
 		nameLabel.setBackground( GUIConstants.LABEL_BACKGROUND);
 		topPanel.setBackground( GUIConstants.MEMORY_BACKGROUND );
 		nameLabelPanel.setBackground( GUIConstants.LABEL_BACKGROUND);
-		
 		SPValueLabel.setBackground( GUIConstants.MEMORY_BACKGROUND);
 		BPValueLabel.setBackground( GUIConstants.MEMORY_BACKGROUND);
 		SIValueLabel.setBackground( GUIConstants.MEMORY_BACKGROUND);
 		DIValueLabel.setBackground( GUIConstants.MEMORY_BACKGROUND);
-		
 	}
 
 	public void updateView() {
-		Processor pro = emulator.getProcessor();
-		
-		SP = new EmuWord( (short) pro.getRegisterValue( new RegisterType("SP")));
-		BP = new EmuWord( (short) pro.getRegisterValue( new RegisterType("BP")));
-		SI = new EmuWord( (short) pro.getRegisterValue( new RegisterType("SI")));
-		DI = new EmuWord( (short) pro.getRegisterValue( new RegisterType("DI")));
-		SP.setRepresentationMode( valueRepresentationMode);
-		BP.setRepresentationMode( valueRepresentationMode);
-		DI.setRepresentationMode( valueRepresentationMode);
-		SI.setRepresentationMode( valueRepresentationMode);
-		
-		SPValueLabel.setText( SP.toString());
-		BPValueLabel.setText( BP.toString());
-		SIValueLabel.setText( SI.toString());
-		DIValueLabel.setText( DI.toString());
-		
-		
+		var pro = emulator.getProcessor();
+
+		int[] curValues = new int[] {
+			pro.getRegisterValue( new RegisterType("SP")),
+			pro.getRegisterValue( new RegisterType("BP")),
+			pro.getRegisterValue( new RegisterType("SI")),
+			pro.getRegisterValue( new RegisterType("DI")),
+		};
+
+		JLabel[] labels = { SPValueLabel, BPValueLabel, SIValueLabel, DIValueLabel };
+		for (int i = 0; i < labels.length; i++) {
+			labels[i].setOpaque( true );
+			labels[i].setBackground( curValues[i] != prevValues[i] ? GUIConstants.CHANGED_VALUE_COLOR : GUIConstants.MEMORY_BACKGROUND );
+		}
+
+		var sp = new EmuWord( (short) curValues[0]);
+		var bp = new EmuWord( (short) curValues[1]);
+		var si = new EmuWord( (short) curValues[2]);
+		var di = new EmuWord( (short) curValues[3]);
+		sp.setRepresentationMode( valueRepresentationMode);
+		bp.setRepresentationMode( valueRepresentationMode);
+		di.setRepresentationMode( valueRepresentationMode);
+		si.setRepresentationMode( valueRepresentationMode);
+
+		SPValueLabel.setText( sp.toString());
+		BPValueLabel.setText( bp.toString());
+		SIValueLabel.setText( si.toString());
+		DIValueLabel.setText( di.toString());
+
+		System.arraycopy(curValues, 0, prevValues, 0, curValues.length);
+
 		bottomPanel.updateView();
-		
+
 	}
 
 	public void setValRepMode(int mode) {

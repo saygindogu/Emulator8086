@@ -6,9 +6,12 @@ import com.saygindogu.emulator.exception.EMURunTimeException;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Emulator {
 
+	private static final Logger LOGGER = Logger.getLogger(Emulator.class.getName());
 	public static final int MIN_MEMORY_SIZE = 4096;
 
 	private File assemblyFile;
@@ -21,7 +24,7 @@ public class Emulator {
 		try {
 			assembler = new Assembler(assemblyFile);
 		} catch (AssemblerException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		processor = new Processor(assembler, MIN_MEMORY_SIZE);
 	}
@@ -34,15 +37,12 @@ public class Emulator {
 			assembler.setAssemblyFile(assemblyFile);
 			processor.reset();
 		} catch (AssemblerException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		notifyViewForChanges();
 	}
 
-	public Assembler getAssembler() { return assembler; }
-	public void setAssembler(Assembler assembler) { this.assembler = assembler; }
 	public Processor getProcessor() { return processor; }
-	public void setProcessor(Processor processor) { this.processor = processor; }
 	public EmulatorView getView() { return view; }
 
 	public void setView(EmulatorView view) {
@@ -51,17 +51,9 @@ public class Emulator {
 		notifyViewForChanges();
 	}
 
-	public void oneStep() {
-		try {
-			processor.fetch();
-			processor.execute();
-		} catch (EMURunTimeException rte) {
-			JOptionPane.showMessageDialog(getView(), "Run Time Exception:\n" + rte.getMessage());
-			rte.printStackTrace();
-		} catch (AssemblerException ae) {
-			JOptionPane.showMessageDialog(getView(), "Assembler Exception:\n" + ae.getMessage());
-			ae.printStackTrace();
-		}
+	public void oneStep() throws EMURunTimeException, AssemblerException {
+		processor.fetch();
+		processor.execute();
 		notifyViewForChanges();
 	}
 
@@ -71,6 +63,7 @@ public class Emulator {
 	}
 
 	public static void main(String[] args) {
+		LoggingConfig.init();
 		SwingUtilities.invokeLater(() -> {
 			try {
 				var emu = new Emulator();
@@ -83,14 +76,24 @@ public class Emulator {
 				emu.setView(view);
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, "Exception Occured!\n" + e.getMessage());
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			}
 		});
 	}
 
-	public void runAll() throws InterruptedException {
+	public void runAll() {
 		while (!processor.isFinished() && !processor.isWaiting()) {
-			oneStep();
+			try {
+				oneStep();
+			} catch (EMURunTimeException rte) {
+				JOptionPane.showMessageDialog(getView(), "Run Time Exception:\n" + rte.getMessage());
+				LOGGER.log(Level.SEVERE, rte.getMessage(), rte);
+				break;
+			} catch (AssemblerException ae) {
+				JOptionPane.showMessageDialog(getView(), "Assembler Exception:\n" + ae.getMessage());
+				LOGGER.log(Level.SEVERE, ae.getMessage(), ae);
+				break;
+			}
 		}
 	}
 
@@ -101,7 +104,7 @@ public class Emulator {
 			processor.startOS();
 		} catch (AssemblerException e) {
 			JOptionPane.showMessageDialog(view, "Exception while reseting: " + e.getMessage());
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		notifyViewForChanges();
 	}

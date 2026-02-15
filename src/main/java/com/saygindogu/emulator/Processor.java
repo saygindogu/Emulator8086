@@ -12,8 +12,10 @@ import com.saygindogu.emulator.functionptrs.ShiftRotateFunction;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Processor {
+	private static final Logger LOGGER = Logger.getLogger(Processor.class.getName());
 	private static final int GENERAL_REGISTER_ARRAY_SIZE = 8;
 	private static final int SEGMENT_REGISTERS_ARRAY_SIZE = 4;
 	private static final int FLAG_ARRAY_SIZE = 16;
@@ -61,13 +63,8 @@ public class Processor {
 		waiting = false;
 	}
 
-	public int getInstructionIndex() { return instructionIndex; }
 	public Memory getMemory() { return memory; }
 	public int getMemorySize() { return memorySize; }
-	public byte[] getGeneralPurposeRegisters() { return generalPurposeRegisters; }
-	public short[] getSegmentRegisters() { return segmentRegisters; }
-	public short[] getPtrIndexRegisters() { return ptrIndexRegisters; }
-	public short getInstructionPointer() { return instructionPointerRegister; }
 	public boolean[] getFlagRegister() { return flagRegister; }
 	public boolean isFinished() { return finished; }
 	public boolean isWaiting() { return waiting; }
@@ -144,77 +141,76 @@ public class Processor {
 	}
 
 	public void execute() throws EMURunTimeException, AssemblerException {
-		System.out.println("Instruction:" + instructionIndex);
-		System.out.println(assembler);
-		if (currentInstructionLineTokens != null) {
-			switch (currentInstructionLineTokens.get(0).toUpperCase()) {
-				case "MOV" -> mov();
-				case "SUB" -> sub();
-				case "ADD" -> add();
-				case "OR" -> {
-					or();
-					flagRegister[RegisterConstants.CF] = false;
-					flagRegister[RegisterConstants.OF] = false;
-				}
-				case "XOR" -> {
-					xor();
-					flagRegister[RegisterConstants.CF] = false;
-					flagRegister[RegisterConstants.OF] = false;
-				}
-				case "AND" -> {
-					and();
-					flagRegister[RegisterConstants.CF] = false;
-					flagRegister[RegisterConstants.OF] = false;
-				}
-				case "NOP" -> nop();
-				case "CLC" -> clc();
-				case "CLD" -> cld();
-				case "ADC" -> adc();
-				case "CMP" -> cmp();
-				case "JA" -> ja();
-				case "JAE" -> jae();
-				case "JBE" -> jbe();
-				case "JB" -> jb();
-				case "JC" -> jc();
-				case "JG" -> jg();
-				case "JGE" -> jge();
-				case "JL" -> jl();
-				case "JLE" -> jle();
-				case "JMP" -> jmp();
-				case "JNE" -> jne();
-				case "JNP" -> jnp();
-				case "JP" -> jp();
-				case "JPO" -> jpo();
-				case "STD" -> std();
-				case "STC" -> stc();
-				case "ROL" -> rol();
-				case "ROR" -> ror();
-				case "SHL" -> shl();
-				case "SHR" -> shr();
-				case "SBB" -> sbb();
-				case "LOOP" -> loop();
-				case "MUL" -> mul();
-				case "DIV" -> div();
-				case "IMUL" -> imul();
-				case "IDIV" -> idiv();
-				case "HLT" -> hlt();
-				case "LEA" -> lea();
-				case "INC" -> inc();
-				case "DEC" -> dec();
-				case "NOT" -> not();
-				case "NEG" -> neg();
-				default -> {
-					JOptionPane.showMessageDialog(null, "Mnemonic not recognised");
-					throw new AssemblerException("Mnemonic not recognised");
-				}
-			}
-			instructionIndex++;
-			instructionPointerRegister += 2;
-		} else {
-			System.out.println("Program did not return..");
+		LOGGER.fine("Instruction:" + instructionIndex);
+		LOGGER.fine(() -> String.valueOf(assembler));
+		if (currentInstructionLineTokens == null) {
+			LOGGER.fine("No more instructions to execute, program finished.");
 			finished = true;
-			JOptionPane.showMessageDialog(null, "Program did not return but instructions has finished!");
+			return;
 		}
+		switch (currentInstructionLineTokens.get(0).toUpperCase()) {
+			case "MOV" -> mov();
+			case "SUB" -> sub();
+			case "ADD" -> add();
+			case "OR" -> {
+				or();
+				flagRegister[RegisterConstants.CF] = false;
+				flagRegister[RegisterConstants.OF] = false;
+			}
+			case "XOR" -> {
+				xor();
+				flagRegister[RegisterConstants.CF] = false;
+				flagRegister[RegisterConstants.OF] = false;
+			}
+			case "AND" -> {
+				and();
+				flagRegister[RegisterConstants.CF] = false;
+				flagRegister[RegisterConstants.OF] = false;
+			}
+			case "NOP" -> nop();
+			case "CLC" -> clc();
+			case "CLD" -> cld();
+			case "ADC" -> adc();
+			case "CMP" -> cmp();
+			case "JA" -> ja();
+			case "JAE" -> jae();
+			case "JBE" -> jbe();
+			case "JB" -> jb();
+			case "JC" -> jc();
+			case "JG" -> jg();
+			case "JGE" -> jge();
+			case "JL" -> jl();
+			case "JLE" -> jle();
+			case "JMP" -> jmp();
+			case "JNE" -> jne();
+			case "JNP" -> jnp();
+			case "JP" -> jp();
+			case "JPO" -> jpo();
+			case "STD" -> std();
+			case "STC" -> stc();
+			case "ROL" -> rol();
+			case "ROR" -> ror();
+			case "SHL" -> shl();
+			case "SHR" -> shr();
+			case "SBB" -> sbb();
+			case "LOOP" -> loop();
+			case "MUL" -> mul();
+			case "DIV" -> div();
+			case "IMUL" -> imul();
+			case "IDIV" -> idiv();
+			case "HLT" -> hlt();
+			case "LEA" -> lea();
+			case "INC" -> inc();
+			case "DEC" -> dec();
+			case "NOT" -> not();
+			case "NEG" -> neg();
+			default -> {
+				JOptionPane.showMessageDialog(null, "Mnemonic not recognised");
+				throw new AssemblerException("Mnemonic not recognised", getTextLineIndex());
+			}
+		}
+		instructionIndex++;
+		instructionPointerRegister += 2;
 	}
 
 	// Instruction implementations
@@ -239,7 +235,7 @@ public class Processor {
 		verifyTokenCount(2);
 		var lhs = currentInstructionLineTokens.get(1);
 
-		System.out.println("oneOpenard:" + currentInstructionLineTokens.get(0) + "lhs:" + lhs);
+		LOGGER.fine("oneOpenard:" + currentInstructionLineTokens.get(0) + "lhs:" + lhs);
 
 		if (Assembler.isRegister(lhs)) {
 			var leftRegister = Assembler.determineRegisterType(lhs);
@@ -256,7 +252,7 @@ public class Processor {
 			var result = function.execute(memory.read(memAddressOfLeft, width));
 			memory.write(memAddressOfLeft, result, width);
 		} else {
-			throw new AssemblerException("invalid operation at " + getTextLineIndex());
+			throw new AssemblerException("invalid operation", getTextLineIndex());
 		}
 	}
 
@@ -265,12 +261,12 @@ public class Processor {
 		var lhs = currentInstructionLineTokens.get(1);
 		var rhs = currentInstructionLineTokens.get(2);
 
-		System.out.println("lea:\nlhs:" + lhs + "\nrhs:" + rhs);
+		LOGGER.fine("lea:\nlhs:" + lhs + "\nrhs:" + rhs);
 
 		if (Assembler.isRegister(lhs)) {
 			var leftRegister = Assembler.determineRegisterType(lhs);
 			if (leftRegister.isIP() || leftRegister.isCS()) {
-				throw new AssemblerException("invalid operation" + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 			if (assembler.isAddress(rhs)) {
 				var memAddressOfRight = decodeAddress(rhs, "DS");
@@ -282,10 +278,10 @@ public class Processor {
 				}
 				setRegisterValue(leftRegister, memory.read(memAddressOfRight, width));
 			} else {
-				throw new AssemblerException("invalid operation" + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else {
-			throw new AssemblerException("invalid operation" + instructionIndex);
+			throw new AssemblerException("invalid operation", getTextLineIndex());
 		}
 	}
 
@@ -367,7 +363,7 @@ public class Processor {
 		verifyTokenCount(2);
 		var lhs = currentInstructionLineTokens.get(1);
 
-		System.out.println("mult:" + currentInstructionLineTokens.get(0) + "lhs:" + lhs);
+		LOGGER.fine("mult:" + currentInstructionLineTokens.get(0) + "lhs:" + lhs);
 
 		if (Assembler.isRegister(lhs)) {
 			var leftRegister = Assembler.determineRegisterType(lhs);
@@ -382,7 +378,7 @@ public class Processor {
 			}
 			function.execute(memory.read(memAddressOfLeft, width), width);
 		} else {
-			throw new AssemblerException("invalid operation at " + getTextLineIndex());
+			throw new AssemblerException("invalid operation", getTextLineIndex());
 		}
 	}
 
@@ -531,7 +527,7 @@ public class Processor {
 		var lhs = currentInstructionLineTokens.get(1);
 		var rhs = currentInstructionLineTokens.get(2);
 
-		System.out.println("alu:" + currentInstructionLineTokens.get(0) + "lhs:" + lhs + "\nrhs" + rhs);
+		LOGGER.fine("alu:" + currentInstructionLineTokens.get(0) + "lhs:" + lhs + "\nrhs" + rhs);
 
 		if (Assembler.isRegister(lhs)) {
 			var leftRegister = Assembler.determineRegisterType(lhs);
@@ -549,7 +545,7 @@ public class Processor {
 				var rightImmediate = Assembler.getImmediateValue(rhs);
 				result = getRegisterValue(leftRegister) - rightImmediate.getIntValue();
 			} else {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else if (assembler.isAddress(lhs)) {
 			var memAddressOfLeft = decodeAddress(lhs, "DS");
@@ -561,16 +557,16 @@ public class Processor {
 				result = memory.read(memAddressOfLeft, rightRegister.getWidth()) - getRegisterValue(rightRegister);
 				width = rightRegister.getWidth().getIntWidth();
 			} else if (assembler.isAddress(rhs)) {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			} else if (Assembler.isNumber(rhs)) {
 				var rightImmediate = Assembler.getImmediateValue(rhs);
 				result = memory.read(memAddressOfLeft, rightImmediate.getWidth()) - rightImmediate.getIntValue();
 				width = rightImmediate.getWidth().getIntWidth();
 			} else {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else {
-			throw new AssemblerException("invalid operation at " + instructionIndex);
+			throw new AssemblerException("invalid operation", getTextLineIndex());
 		}
 
 		handleFlags(result, width);
@@ -613,7 +609,7 @@ public class Processor {
 		var lhs = currentInstructionLineTokens.get(1);
 		var rhs = currentInstructionLineTokens.get(2);
 
-		System.out.println("rol: " + currentInstructionLineTokens.get(0) + "\nlhs:" + lhs + "\nrhs" + rhs);
+		LOGGER.fine("rol: " + currentInstructionLineTokens.get(0) + "\nlhs:" + lhs + "\nrhs" + rhs);
 
 		int firstValue;
 		int lastValue;
@@ -628,13 +624,13 @@ public class Processor {
 				lastValue = function.execute(getRegisterValue(leftRegister), getRegisterValue(rightRegister), width);
 				setRegisterValue(leftRegister, lastValue);
 			} else if (assembler.isAddress(rhs)) {
-				throw new AssemblerException("invalid operation at " + getTextLineIndex());
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			} else if (Assembler.isNumber(rhs)) {
 				var rightImmediate = Assembler.getImmediateValue(rhs);
 				lastValue = function.execute(getRegisterValue(leftRegister), rightImmediate.getIntValue(), width);
 				setRegisterValue(leftRegister, lastValue);
 			} else {
-				throw new AssemblerException("invalid operation at " + getTextLineIndex());
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else if (assembler.isAddress(lhs)) {
 			var memAddressOfLeft = decodeAddress(lhs, "DS");
@@ -650,7 +646,7 @@ public class Processor {
 				lastValue = function.execute(firstValue, getRegisterValue(rightRegister), width);
 				memory.write(memAddressOfLeft, lastValue, width);
 			} else if (assembler.isAddress(rhs)) {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			} else if (Assembler.isNumber(rhs)) {
 				var rightImmediate = Assembler.getImmediateValue(rhs);
 				if (width == null) width = rightImmediate.getWidth();
@@ -658,10 +654,10 @@ public class Processor {
 				lastValue = function.execute(firstValue, rightImmediate.getIntValue(), width);
 				memory.write(memAddressOfLeft, lastValue, width);
 			} else {
-				throw new AssemblerException("invalid operation at " + getTextLineIndex());
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else {
-			throw new AssemblerException("invalid operation at " + getTextLineIndex());
+			throw new AssemblerException("invalid operation", getTextLineIndex());
 		}
 	}
 
@@ -674,17 +670,17 @@ public class Processor {
 		var lhs = currentInstructionLineTokens.get(1);
 		var rhs = currentInstructionLineTokens.get(2);
 
-		System.out.println("MOV:\nlhs:" + lhs + "\nrhs:" + rhs);
+		LOGGER.fine("MOV:\nlhs:" + lhs + "\nrhs:" + rhs);
 
 		if (Assembler.isRegister(lhs)) {
 			var leftRegister = Assembler.determineRegisterType(lhs);
 			if (leftRegister.isIP() || leftRegister.isCS()) {
-				throw new AssemblerException("invalid operation" + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 			if (Assembler.isRegister(rhs)) {
 				var rightRegister = Assembler.determineRegisterType(rhs);
 				if (rightRegister.isSegmentRegister() && leftRegister.isSegmentRegister()) {
-					throw new AssemblerException("invalid operation" + instructionIndex);
+					throw new AssemblerException("invalid operation", getTextLineIndex());
 				}
 				setRegisterValue(leftRegister, getRegisterValue(rightRegister));
 			} else if (assembler.isAddress(rhs)) {
@@ -698,12 +694,12 @@ public class Processor {
 				setRegisterValue(leftRegister, memory.read(memAddressOfRight, width));
 			} else if (Assembler.isNumber(rhs)) {
 				if (leftRegister.isSegmentRegister()) {
-					throw new AssemblerException("invalid operation" + instructionIndex);
+					throw new AssemblerException("invalid operation", getTextLineIndex());
 				}
 				var rightImmediate = Assembler.getImmediateValue(rhs);
 				setRegisterValue(leftRegister, rightImmediate.getIntValue());
 			} else {
-				throw new AssemblerException("invalid operation" + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else if (assembler.isAddress(lhs)) {
 			var memAddressOfLeft = decodeAddress(lhs, "DS");
@@ -720,7 +716,7 @@ public class Processor {
 				}
 				memory.write(memAddressOfLeft, getRegisterValue(rightRegister), width);
 			} else if (assembler.isAddress(rhs)) {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			} else if (Assembler.isNumber(rhs)) {
 				var rightImmediate = Assembler.getImmediateValue(rhs);
 				if (width == null) {
@@ -728,12 +724,12 @@ public class Processor {
 				}
 				memory.write(memAddressOfLeft, rightImmediate.getIntValue(), width);
 			} else {
-				throw new AssemblerException("invalid operation" + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else if (Assembler.isNumber(lhs)) {
-			throw new AssemblerException("Illegal operation" + instructionIndex);
+			throw new AssemblerException("Illegal operation", getTextLineIndex());
 		} else {
-			throw new AssemblerException("invalid operation" + instructionIndex);
+			throw new AssemblerException("invalid operation", getTextLineIndex());
 		}
 	}
 
@@ -771,7 +767,7 @@ public class Processor {
 		var lhs = currentInstructionLineTokens.get(1);
 		var rhs = currentInstructionLineTokens.get(2);
 
-		System.out.println("alu:" + currentInstructionLineTokens.get(0) + "\nlhs:" + lhs + "\nrhs" + rhs);
+		LOGGER.fine("alu:" + currentInstructionLineTokens.get(0) + "\nlhs:" + lhs + "\nrhs" + rhs);
 
 		if (Assembler.isRegister(lhs)) {
 			var leftRegister = Assembler.determineRegisterType(lhs);
@@ -801,7 +797,7 @@ public class Processor {
 				result = function.execute(getRegisterValue(leftRegister), rightImmediate.getIntValue(), leftRegister.getWidth());
 				setRegisterValue(leftRegister, result);
 			} else {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else if (assembler.isAddress(lhs)) {
 			if (assembler.isVariable(lhs)) {
@@ -820,7 +816,7 @@ public class Processor {
 				width = rWidth.getIntWidth();
 				memory.write(memAddressOfLeft, result, rWidth);
 			} else if (assembler.isAddress(rhs)) {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			} else if (Assembler.isNumber(rhs)) {
 				var rightImmediate = Assembler.getImmediateValue(rhs);
 				if (rWidth == null) {
@@ -830,10 +826,10 @@ public class Processor {
 				width = rWidth.getIntWidth();
 				memory.write(memAddressOfLeft, result, rWidth);
 			} else {
-				throw new AssemblerException("invalid operation at " + instructionIndex);
+				throw new AssemblerException("invalid operation", getTextLineIndex());
 			}
 		} else {
-			throw new AssemblerException("invalid operation at " + instructionIndex);
+			throw new AssemblerException("invalid operation", getTextLineIndex());
 		}
 
 		handleFlags(result, width);
@@ -856,7 +852,7 @@ public class Processor {
 	}
 
 	private int shift(int openard1, int openard2, OperationWidth width, String direction) {
-		System.out.println(openard2);
+		LOGGER.fine(String.valueOf(openard2));
 		var binary = convertToBinary(openard1, width);
 		var msbIndex = width.isEightBit() ? 7 : 15;
 		if (direction.equalsIgnoreCase("left")) {
@@ -876,14 +872,14 @@ public class Processor {
 				openard2--;
 			}
 		} else {
-			System.out.println("Wrong direction in rotate: " + direction);
+			LOGGER.warning("Wrong direction in rotate: " + direction);
 			return -1;
 		}
 		return convertToDecimal(binary);
 	}
 
 	private int rotate(int openard1, int openard2, OperationWidth width, String direction) {
-		System.out.println(openard2);
+		LOGGER.fine(String.valueOf(openard2));
 		var binary = convertToBinary(openard1, width);
 		var msbIndex = width.isEightBit() ? 7 : 15;
 		if (direction.equalsIgnoreCase("left")) {
@@ -907,7 +903,7 @@ public class Processor {
 				openard2--;
 			}
 		} else {
-			System.out.println("Wrong direction in rotate: " + direction);
+			LOGGER.warning("Wrong direction in rotate: " + direction);
 			return -1;
 		}
 		return convertToDecimal(binary);
@@ -915,7 +911,7 @@ public class Processor {
 
 	private void verifyTokenCount(int count) throws AssemblerException {
 		if (count != currentInstructionLineTokens.size()) {
-			throw new AssemblerException("Wrong parameter count");
+			throw new AssemblerException("Wrong parameter count", getTextLineIndex());
 		}
 	}
 
@@ -1070,20 +1066,20 @@ public class Processor {
 		var ax = new RegisterType(RegisterClass.GENERAL_TYPE, RegisterConstants.AX);
 		var bx = new RegisterType(RegisterClass.GENERAL_TYPE, RegisterConstants.BX);
 		setRegisterValue(ax, 5);
-		System.out.println("ax:" + getRegisterValue(ax));
-		System.out.println("bx:" + getRegisterValue(bx));
+		LOGGER.fine("ax:" + getRegisterValue(ax));
+		LOGGER.fine("bx:" + getRegisterValue(bx));
 		fetch();
 		execute();
-		System.out.println("ax:" + getRegisterValue(ax));
-		System.out.println("bx:" + getRegisterValue(bx));
+		LOGGER.fine("ax:" + getRegisterValue(ax));
+		LOGGER.fine("bx:" + getRegisterValue(bx));
 		fetch();
 		execute();
-		System.out.println("ax:" + getRegisterValue(ax));
-		System.out.println("bx:" + getRegisterValue(bx));
+		LOGGER.fine("ax:" + getRegisterValue(ax));
+		LOGGER.fine("bx:" + getRegisterValue(bx));
 		fetch();
 		execute();
-		System.out.println("ax:" + getRegisterValue(ax));
-		System.out.println("bx:" + getRegisterValue(bx));
+		LOGGER.fine("ax:" + getRegisterValue(ax));
+		LOGGER.fine("bx:" + getRegisterValue(bx));
 	}
 
 	public void reset() throws AssemblerException {

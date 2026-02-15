@@ -12,22 +12,20 @@ import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TextPanel extends JScrollPane {
+
+	private static final Logger LOGGER = Logger.getLogger(TextPanel.class.getName());
 
 	JTextArea textArea;
 	private Emulator emulator;
 	File editingFile;
-	String text;
-	private double width;
-	private double height;
 
 	public TextPanel(Emulator emulator, double w, double h){
-		width = w;
-		height = h;
 		this.emulator = emulator;
 		textArea = new JTextArea( 300, 300);
-		textArea.setText(text);
 		textArea.setFont( new Font( "lucida console", Font.PLAIN, 20));
 		textArea.setEditable(true);
 		textArea.addKeyListener( new KeyAdapter() {
@@ -76,7 +74,7 @@ public class TextPanel extends JScrollPane {
 
 		} catch (BadLocationException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 
 	}
@@ -91,12 +89,10 @@ public class TextPanel extends JScrollPane {
 				builder.append( "\n");
 				line = bufRead.readLine();
 			}
-			text = builder.toString();
+			textArea.setText(builder.toString());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
-		textArea.setText(text);
 
 	}
 
